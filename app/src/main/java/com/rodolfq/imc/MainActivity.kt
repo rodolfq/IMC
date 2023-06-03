@@ -2,9 +2,13 @@ package com.rodolfq.imc
 
 import android.content.Context
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import com.rodolfq.imc.databinding.ActivityMainBinding
+import java.util.Locale
 
 
 class MainActivity : AppCompatActivity() {
@@ -117,6 +121,47 @@ class MainActivity : AppCompatActivity() {
             inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
         }
 
+        text()
+
+    }
+
+    fun text() {
+        val alturaEditText: EditText = findViewById(R.id.height)
+
+        alturaEditText.addTextChangedListener(object : TextWatcher {
+            private var isEditing: Boolean = false
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Nada a fazer aqui
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Nada a fazer aqui
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                if (isEditing) return
+
+                isEditing = true
+
+                // Remove qualquer ponto existente
+                val textWithoutDots = s.toString().replace(".", "")
+
+                // Remove caracteres indesejados, exceto dígitos e ponto decimal
+                val cleanText = textWithoutDots.replace(Regex("[^\\d.]"), "")
+
+                // Verifica se há pelo menos um número antes do ponto
+                if (cleanText.isNotEmpty()) {
+                    val intValue = cleanText.toInt()
+                    val formattedValue = intValue / 100.toFloat()
+
+                    // Atualiza o texto com o ponto no lugar adequado
+                    alturaEditText.setText(String.format(Locale.US, "%.2f", formattedValue))
+                    alturaEditText.setSelection(alturaEditText.text.length)
+                }
+
+                isEditing = false
+            }
+        })
     }
 }
-
